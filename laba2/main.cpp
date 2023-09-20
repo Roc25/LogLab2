@@ -2,7 +2,57 @@
 #include <time.h>
 #include <malloc.h>
 #include <random>
+#include <locale.h>
 
+int summ(int len) {
+    setvbuf(stdin, NULL, _IONBF, 0);
+    setvbuf(stdout, NULL, _IONBF, 0);
+
+    clock_t start, end; // объ€вл€ем переменные дл€ определени€ времени выполнени€
+
+    int i = 0, j = 0, r;
+    int a[200][200], b[200][200], c[200][200], elem_c;
+
+    srand(time(NULL)); // инициализируем параметры генератора случайных чисел
+    while (i < len)
+    {
+        while (j < len)
+        {
+            a[i][j] = rand() % 100 + 1; // заполн€ем массив случайными числами
+            j++;
+        }
+        i++;
+    }
+    srand(time(NULL)); // инициализируем параметры генератора случайных чисел
+    i = 0; j = 0;
+    while (i < 200)
+    {
+        while (j < len)
+        {
+            b[i][j] = rand() % 100 + 1; // заполн€ем массив случайными числами
+            j++;
+        }
+        i++;
+    }
+    start = clock();
+    for (i = 0; i < len; i++)
+    {
+        for (j = 0; j < len; j++)
+        {
+            elem_c = 0;
+            for (r = 0; r < len; r++)
+            {
+                elem_c = elem_c + a[i][r] * b[r][j];
+                c[i][j] = elem_c;
+            }
+        }
+    }
+
+    end = clock();
+    double answer = difftime(end, start);
+    printf("начальное врем€: %d\nконечное врем€: %d\nразница (в секундах): %f\n\n", start, end, answer / CLOCKS_PER_SEC);
+    return 0;
+}
 
 void shell(int* items, int count) {
 
@@ -58,26 +108,33 @@ void randitems(int* mas, int size) {
 
 
 int main() {
+    setlocale(LC_ALL, "Rus");
     srand(time(NULL));
     int sizes[7] = { 100, 250, 500, 1000, 2500, 5000, 10000 };
+    int mass[5] = { 10, 20, 40, 100, 200 };
 
     int* mas = (int*)malloc(sizes[6] * sizeof(int));
 
     clock_t start, end;
 
+    printf("_______задание 1_______\n");
+    for (int i = 0; i < 5; i++) {
+        summ(mass[i]);
+    }
+    printf("_______задание 2_______\n");
     for (int i = 0; i < 7; i++){
         randitems(mas, sizes[i]);
         start = clock();
         shell(mas,sizes[i]);
         end = clock();
-        printf("—ортировка Ўеллом\n¬рем€: %d\nЁлементов:%d\n",(end-start)/CLOCKS_PER_SEC,sizes[i]);
+        printf("—ортировка Ўеллом\nначальное врем€: %d\nконечное врем€: %d\n¬рем€: %f\nЁлементов:%d\n",start, end, difftime(end, start) /CLOCKS_PER_SEC,sizes[i]);
 
 
         randitems(mas, sizes[i]);
         start = clock();
         qs(mas,0,sizes[i]-1);
         end = clock();
-        printf("Ѕыстра€ сортировка\n¬рем€: %d\nЁлементов:%d\n\n", (end - start) / CLOCKS_PER_SEC, sizes[i]);
+        printf("Ѕыстра€ сортировка\nначальное врем€: %d\nконечное врем€: %d\n¬рем€: %f\nЁлементов:%d\n\n", start, end,difftime(end, start) / CLOCKS_PER_SEC, sizes[i]);
 
     }
 
