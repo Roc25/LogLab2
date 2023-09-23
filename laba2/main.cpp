@@ -4,6 +4,11 @@
 #include <random>
 #include <locale.h>
 
+int comp(const int* i, const int* j)
+{
+    return *i - *j;
+}
+
 int summ(int len) {
     setvbuf(stdin, NULL, _IONBF, 0);
     setvbuf(stdout, NULL, _IONBF, 0);
@@ -49,31 +54,7 @@ int summ(int len) {
         i++;
     }
  
-    /*
-    int a[291][291], b[291][291], c[291][291], elem_c;
-
-    srand(time(NULL)); // инициализируем параметры генератора случайных чисел
-    while (i < len)
-    {
-        while (j < len)
-        {
-            a[i][j] = rand() % 100 + 1; // заполняем массив случайными числами
-            j++;
-        }
-        i++;
-    }
-    srand(time(NULL)); // инициализируем параметры генератора случайных чисел
-    i = 0; j = 0;
-    while (i < len)
-    {
-        while (j < len)
-        {
-            b[i][j] = rand() % 100 + 1; // заполняем массив случайными числами
-            j++;
-        }
-        i++;
-    }
-    */
+  
     start = clock();
     for (i = 0; i < len; i++)
     {
@@ -91,10 +72,14 @@ int summ(int len) {
     end = clock();
     for (int i = 0; i < len; i++) {
         free(a[i]);
+        free(b[i]);
+        free(c[i]);
     }
     free(a);
+    free(b);
+    free(c);
     double answer = difftime(end, start);
-    printf("| %15d | %15f |\n",len*len, answer / CLOCKS_PER_SEC);
+    printf("| %16d | %27f |\n",len*len, answer / CLOCKS_PER_SEC);
     return 0;
 }
 
@@ -162,14 +147,15 @@ int main() {
     clock_t start, end;
     
     printf("_______задание 1_______\n");
-    printf("Кол-во элементов---время выполнения в секундах\n");
+    printf("| Кол-во элементов | Время выполнения в секундах |\n");
     for (int i = 0; i < 5; i++) {
 
         summ(mass[i]);
     }
    
     printf("_______задание 2_______\n");
-    printf("Кол-во элементов---Сортировка Шелла---Быстрая сортировка\n");
+    printf("");
+    printf("| Кол-во элементов | Функция Qsort | Сортировка Шелла | Быстрая сортировка |\n");
     for (int i = 0; i < 7; i++){
         randitems(mas, sizes[i]);
         start = clock();
@@ -177,13 +163,19 @@ int main() {
         end = clock();
         float shelr = difftime(end, start) / 1000;
 
-
+        
         randitems(mas, sizes[i]);
         start = clock();
         qs(mas,0,sizes[i]-1);
         end = clock();
         float qsr = difftime(end, start) / 1000;
-        printf("|%15d | %15f | %15f\n", sizes[i], shelr, qsr);
+
+        start = clock();
+        qsort(mas,sizes[i], sizeof(int), (int(*) (const void*, const void*)) comp);
+        end = clock();
+        float sqsr = difftime(end, start) / 1000;
+
+        printf("| %16d | %13f | %16f | %18f |\n", sizes[i],sqsr, shelr, qsr);
 
     }
 
