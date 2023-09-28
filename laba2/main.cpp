@@ -4,69 +4,41 @@
 #include <random>
 #include <locale.h>
 
-int comp(const int* i, const int* j)//нужна для qsort
+int compare(const int* i, const int* j)//нужна для qsort
 {
     return *i - *j;
 }
 
-int summ(int len) {
-    setvbuf(stdin, NULL, _IONBF, 0);
-    setvbuf(stdout, NULL, _IONBF, 0);
+void matrix_mul(int** first, int** second, int** answ, int matrix_len) {
+    for (int i = 0; i < matrix_len; i++) {
+        for (int j = 0; j < matrix_len; j++) {
+            int elem_c = 0;
 
-    clock_t start, end; // объявляем переменные для определения времени выполнения
-    int elem_c;
-    int r;
-    int** a = (int**)malloc(len * sizeof(int*));
-    int** b = (int**)malloc(len * sizeof(int*));
-    int** c = (int**)malloc(len * sizeof(int*));
-
-    for (int i = 0; i < len; i++) {
-        a[i] = (int*)malloc(len * sizeof(int));
-        b[i] = (int*)malloc(len * sizeof(int));
-        c[i] = (int*)malloc(len * sizeof(int));
-    }
-
-    srand(time(NULL)); // инициализируем параметры генератора случайных чисел
-    int i = 0, j = 0;
-    while (i < len)
-    {
-        while (j < len)
-        {
-            a[i][j] = rand() % 100 + 1; // заполняем массив случайными числами
-            b[i][j] = rand() % 100 + 1;
-            j++;
-        }
-        i++;
-    }
- 
-  
-    start = clock();
-    for (i = 0; i < len; i++)
-    {
-        for (j = 0; j < len; j++)
-        {
-            elem_c = 0;
-            for (r = 0; r < len; r++)
-            {
-                elem_c = elem_c + a[i][r] * b[r][j];
-                c[i][j] = elem_c;
+            for (int r = 0; r < matrix_len; r++) {
+                elem_c = elem_c + first[i][r] * second[r][j];
+                answ[i][j] = elem_c;
             }
         }
     }
-    end = clock();
+}
 
+int** matrix_fill(int len) {
+    setvbuf(stdin, NULL, _IONBF, 0);
+    setvbuf(stdout, NULL, _IONBF, 0);
+
+    int** a = (int**)malloc(len * sizeof(int*));
     for (int i = 0; i < len; i++) {
-        free(a[i]);
-        free(b[i]);
-        free(c[i]);
+        a[i] = (int*)malloc(len * sizeof(int));
     }
 
-    free(a);
-    free(b);
-    free(c);
-    double answer = difftime(end, start);
-    printf("| %16d | %27f |\n",len*len, answer / CLOCKS_PER_SEC);
-    return 0;
+    for (int i = 0; i < len; i++){
+        for (int j = 0; i < len; i++)
+        {
+            a[i][j] = rand() % 100 + 1; // заполняем массив случайными числами
+        }
+    }
+
+    return a;
 }
 
 void shell(int* items, int count) {
@@ -149,121 +121,134 @@ void direct_and_reverse(int* mas, int size) {
     }
 }
 
-int main() {
-    setlocale(LC_ALL, "Rus");
-    srand(time(NULL));
-    int sizes[7] = {2000, 5000, 10000, 50000, 150000, 500000, 1000000 };
-    int mass[5] = {100, 200, 500, 1000, 2000};
 
-    int* mas = (int*)malloc(sizes[6] * sizeof(int));
+void exercise1() {
+    int matrix_sizes[5] = { 100, 200, 500, 1000, 2000 };
+    int*** a = (int***)malloc(3 * sizeof(int*));
 
-    clock_t start, end;
-    
     printf("_______задание 1_______\n");
     printf("| Кол-во элементов | Время выполнения в секундах |\n");
     for (int i = 0; i < 5; i++) {
+        int** a = matrix_fill(matrix_sizes[i]);
+        int** b = matrix_fill(matrix_sizes[i]);
+        int** c = matrix_fill(matrix_sizes[i]);
 
-        summ(mass[i]);
+        clock_t start = clock();
+        matrix_mul(a, b, c, matrix_sizes[i]);
+        clock_t end = clock();
+
+        double answer = difftime(end, start);
+        printf("| %16d | %27f |\n", matrix_sizes[i] * matrix_sizes[i], answer / CLOCKS_PER_SEC);
     }
-   
+}
+
+int main() {
+    setlocale(LC_ALL, "Rus");
+    srand(time(NULL));
+    int mas_sizes[7] = {2000, 5000, 10000, 50000, 150000, 500000, 1000000 };
+
+    clock_t start, end;
+    exercise1();
+
     printf("_______задание 2_______\n");
     printf("Случайный порядок\n");
     printf("| Кол-во элементов | Функция Qsort | Сортировка Шелла | Быстрая сортировка |\n");
+    int* mas = (int*)malloc(mas_sizes[6] * sizeof(int));
     for (int i = 0; i < 7; i++){
-        randitems(mas, sizes[i]);
+        randitems(mas, mas_sizes[i]);
         start = clock();
-        shell(mas,sizes[i]);
+        shell(mas,mas_sizes[i]);
         end = clock();
         float shelr = difftime(end, start) / CLOCKS_PER_SEC;
 
         
-        randitems(mas, sizes[i]);
+        randitems(mas, mas_sizes[i]);
         start = clock();
-        qs(mas,0,sizes[i]-1);
+        qs(mas,0,mas_sizes[i]-1);
         end = clock();
         float qsr = difftime(end, start) / CLOCKS_PER_SEC;
 
         start = clock();
-        qsort(mas,sizes[i], sizeof(int), (int(*) (const void*, const void*)) comp);
+        qsort(mas,mas_sizes[i], sizeof(int), (int(*) (const void*, const void*)) compare);
         end = clock();
         float sqsr = difftime(end, start) / CLOCKS_PER_SEC;
 
-        printf("| %16d | %13f | %16f | %18f |\n", sizes[i],sqsr, shelr, qsr);
+        printf("| %16d | %13f | %16f | %18f |\n", mas_sizes[i],sqsr, shelr, qsr);
 
     }
     printf("Прямой порядок");
     printf("\n| Кол-во элементов | Функция Qsort | Сортировка Шелла | Быстрая сортировка |\n");
     for (int i = 0; i < 7; i++) {
-        inorderitems(mas, sizes[i]);
+        inorderitems(mas, mas_sizes[i]);
         start = clock();
-        shell(mas, sizes[i]);
+        shell(mas, mas_sizes[i]);
         end = clock();
         float shelr = difftime(end, start) / CLOCKS_PER_SEC;
 
 
-        inorderitems(mas, sizes[i]);
+        inorderitems(mas, mas_sizes[i]);
         start = clock();
-        qs(mas, 0, sizes[i] - 1);
+        qs(mas, 0, mas_sizes[i] - 1);
         end = clock();
         float qsr = difftime(end, start) / CLOCKS_PER_SEC;
 
-        inorderitems(mas, sizes[i]);
+        inorderitems(mas, mas_sizes[i]);
         start = clock();
-        qsort(mas, sizes[i], sizeof(int), (int(*) (const void*, const void*)) comp);
+        qsort(mas, mas_sizes[i], sizeof(int), (int(*) (const void*, const void*)) compare);
         end = clock();
         float sqsr = difftime(end, start) / CLOCKS_PER_SEC;
 
-        printf("| %16d | %13f | %16f | %18f |\n", sizes[i], sqsr, shelr, qsr);
+        printf("| %16d | %13f | %16f | %18f |\n", mas_sizes[i], sqsr, shelr, qsr);
         
     }
     printf("Обратный порядок");
     printf("\n| Кол-во элементов | Функция Qsort | Сортировка Шелла | Быстрая сортировка |\n");
     for (int i = 0; i < 7; i++) {
-        in_reverse_orderitems(mas, sizes[i]);
+        in_reverse_orderitems(mas, mas_sizes[i]);
         start = clock();
-        shell(mas, sizes[i]);
+        shell(mas, mas_sizes[i]);
         end = clock();
         float shelr = difftime(end, start) / CLOCKS_PER_SEC;
 
 
-        in_reverse_orderitems(mas, sizes[i]);
+        in_reverse_orderitems(mas, mas_sizes[i]);
         start = clock();
-        qs(mas, 0, sizes[i] - 1);
+        qs(mas, 0, mas_sizes[i] - 1);
         end = clock();
         float qsr = difftime(end, start) / CLOCKS_PER_SEC;
 
-        in_reverse_orderitems(mas, sizes[i]);
+        in_reverse_orderitems(mas, mas_sizes[i]);
         start = clock();
-        qsort(mas, sizes[i], sizeof(int), (int(*) (const void*, const void*)) comp);
+        qsort(mas, mas_sizes[i], sizeof(int), (int(*) (const void*, const void*)) compare);
         end = clock();
         float sqsr = difftime(end, start) / CLOCKS_PER_SEC;
 
-        printf("| %16d | %13f | %16f | %18f |\n", sizes[i], sqsr, shelr, qsr);
+        printf("| %16d | %13f | %16f | %18f |\n", mas_sizes[i], sqsr, shelr, qsr);
 
     }
     printf("Обратный и прямой порядок");
     printf("\n| Кол-во элементов | Функция Qsort | Сортировка Шелла | Быстрая сортировка |\n");
     for (int i = 0; i < 7; i++) {
-        direct_and_reverse(mas, sizes[i]);
+        direct_and_reverse(mas, mas_sizes[i]);
         start = clock();
-        shell(mas, sizes[i]);
+        shell(mas, mas_sizes[i]);
         end = clock();
         float shelr = difftime(end, start) / CLOCKS_PER_SEC;
 
 
-        direct_and_reverse(mas, sizes[i]);
+        direct_and_reverse(mas, mas_sizes[i]);
         start = clock();
-        qs(mas, 0, sizes[i] - 1);
+        qs(mas, 0, mas_sizes[i] - 1);
         end = clock();
         float qsr = difftime(end, start) / CLOCKS_PER_SEC;
 
-        direct_and_reverse(mas, sizes[i]);
+        direct_and_reverse(mas, mas_sizes[i]);
         start = clock();
-        qsort(mas, sizes[i], sizeof(int), (int(*) (const void*, const void*)) comp);
+        qsort(mas, mas_sizes[i], sizeof(int), (int(*) (const void*, const void*)) compare);
         end = clock();
         float sqsr = difftime(end, start) / CLOCKS_PER_SEC;
 
-        printf("| %16d | %13f | %16f | %18f |\n", sizes[i], sqsr, shelr, qsr);
+        printf("| %16d | %13f | %16f | %18f |\n", mas_sizes[i], sqsr, shelr, qsr);
 
     }
     return 0;
