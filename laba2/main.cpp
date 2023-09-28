@@ -15,40 +15,25 @@ int summ(int len) {
 
     clock_t start, end; // объявляем переменные для определения времени выполнения
     int elem_c;
-    int i = 0, j = 0, r;
+    int r;
     int** a = (int**)malloc(len * sizeof(int*));
     int** b = (int**)malloc(len * sizeof(int*));
     int** c = (int**)malloc(len * sizeof(int*));
 
     for (int i = 0; i < len; i++) {
         a[i] = (int*)malloc(len * sizeof(int));
-    }
-
-    for (int i = 0; i < len; i++) {
         b[i] = (int*)malloc(len * sizeof(int));
-    }
-
-    for (int i = 0; i < len; i++) {
         c[i] = (int*)malloc(len * sizeof(int));
     }
 
     srand(time(NULL)); // инициализируем параметры генератора случайных чисел
+    int i = 0, j = 0;
     while (i < len)
     {
         while (j < len)
         {
             a[i][j] = rand() % 100 + 1; // заполняем массив случайными числами
-            j++;
-        }
-        i++;
-    }
-    srand(time(NULL)); // инициализируем параметры генератора случайных чисел
-    i = 0; j = 0;
-    while (i < len)
-    {
-        while (j < len)
-        {
-            b[i][j] = rand() % 100 + 1; // заполняем массив случайными числами
+            b[i][j] = rand() % 100 + 1;
             j++;
         }
         i++;
@@ -68,13 +53,14 @@ int summ(int len) {
             }
         }
     }
-
     end = clock();
+
     for (int i = 0; i < len; i++) {
         free(a[i]);
         free(b[i]);
         free(c[i]);
     }
+
     free(a);
     free(b);
     free(c);
