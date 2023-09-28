@@ -4,7 +4,7 @@
 #include <random>
 #include <locale.h>
 
-int comp(const int* i, const int* j)
+int comp(const int* i, const int* j)//нужна для qsort
 {
     return *i - *j;
 }
@@ -134,13 +134,40 @@ void randitems(int* mas, int size) {
         mas[i] = rand() % 100;
     }
 }
+void inorderitems(int* mas, int size) {
+    int ch = 1;
+    for (int i = 0; i < size; i++) {
+        ch += 5;
+        mas[i] = ch;
+    }
+}
 
+void in_reverse_orderitems(int* mas, int size) {
+    int ch = size * 10;
+    for (int i = 0; i < size; i++) {
+        ch -= 5;
+        mas[i] = ch;
+    }
+}
+void direct_and_reverse(int* mas, int size) {
+    int ch1 = 1, ch2 = (size / 2) * 10;
+    for (int i = 0; i < size; i++) {
+        if (i < size) {
+            mas[i] = ch1;
+            ch1 += 5;
+        }
+        else{
+            mas[i] = ch2;
+            ch2 -= 5;
+        }
+    }
+}
 
 int main() {
     setlocale(LC_ALL, "Rus");
     srand(time(NULL));
-    int sizes[7] = { 500, 1000, 2000, 5000, 10000, 100000, 1000000 };
-    int mass[5] = {100, 200, 400, 1000, 1000};
+    int sizes[7] = {2000, 5000, 10000, 50000, 150000, 500000, 1000000 };
+    int mass[5] = {100, 200, 500, 1000, 2000};
 
     int* mas = (int*)malloc(sizes[6] * sizeof(int));
 
@@ -154,30 +181,104 @@ int main() {
     }
    
     printf("_______задание 2_______\n");
-    printf("");
+    printf("Случайный порядок\n");
     printf("| Кол-во элементов | Функция Qsort | Сортировка Шелла | Быстрая сортировка |\n");
     for (int i = 0; i < 7; i++){
         randitems(mas, sizes[i]);
         start = clock();
         shell(mas,sizes[i]);
         end = clock();
-        float shelr = difftime(end, start) / 1000;
+        float shelr = difftime(end, start) / CLOCKS_PER_SEC;
 
         
         randitems(mas, sizes[i]);
         start = clock();
         qs(mas,0,sizes[i]-1);
         end = clock();
-        float qsr = difftime(end, start) / 1000;
+        float qsr = difftime(end, start) / CLOCKS_PER_SEC;
 
         start = clock();
         qsort(mas,sizes[i], sizeof(int), (int(*) (const void*, const void*)) comp);
         end = clock();
-        float sqsr = difftime(end, start) / 1000;
+        float sqsr = difftime(end, start) / CLOCKS_PER_SEC;
 
         printf("| %16d | %13f | %16f | %18f |\n", sizes[i],sqsr, shelr, qsr);
 
     }
+    printf("Прямой порядок");
+    printf("\n| Кол-во элементов | Функция Qsort | Сортировка Шелла | Быстрая сортировка |\n");
+    for (int i = 0; i < 7; i++) {
+        inorderitems(mas, sizes[i]);
+        start = clock();
+        shell(mas, sizes[i]);
+        end = clock();
+        float shelr = difftime(end, start) / CLOCKS_PER_SEC;
 
+
+        inorderitems(mas, sizes[i]);
+        start = clock();
+        qs(mas, 0, sizes[i] - 1);
+        end = clock();
+        float qsr = difftime(end, start) / CLOCKS_PER_SEC;
+
+        inorderitems(mas, sizes[i]);
+        start = clock();
+        qsort(mas, sizes[i], sizeof(int), (int(*) (const void*, const void*)) comp);
+        end = clock();
+        float sqsr = difftime(end, start) / CLOCKS_PER_SEC;
+
+        printf("| %16d | %13f | %16f | %18f |\n", sizes[i], sqsr, shelr, qsr);
+        
+    }
+    printf("Обратный порядок");
+    printf("\n| Кол-во элементов | Функция Qsort | Сортировка Шелла | Быстрая сортировка |\n");
+    for (int i = 0; i < 7; i++) {
+        in_reverse_orderitems(mas, sizes[i]);
+        start = clock();
+        shell(mas, sizes[i]);
+        end = clock();
+        float shelr = difftime(end, start) / CLOCKS_PER_SEC;
+
+
+        in_reverse_orderitems(mas, sizes[i]);
+        start = clock();
+        qs(mas, 0, sizes[i] - 1);
+        end = clock();
+        float qsr = difftime(end, start) / CLOCKS_PER_SEC;
+
+        in_reverse_orderitems(mas, sizes[i]);
+        start = clock();
+        qsort(mas, sizes[i], sizeof(int), (int(*) (const void*, const void*)) comp);
+        end = clock();
+        float sqsr = difftime(end, start) / CLOCKS_PER_SEC;
+
+        printf("| %16d | %13f | %16f | %18f |\n", sizes[i], sqsr, shelr, qsr);
+
+    }
+    printf("Обратный и прямой порядок");
+    printf("\n| Кол-во элементов | Функция Qsort | Сортировка Шелла | Быстрая сортировка |\n");
+    for (int i = 0; i < 7; i++) {
+        direct_and_reverse(mas, sizes[i]);
+        start = clock();
+        shell(mas, sizes[i]);
+        end = clock();
+        float shelr = difftime(end, start) / CLOCKS_PER_SEC;
+
+
+        direct_and_reverse(mas, sizes[i]);
+        start = clock();
+        qs(mas, 0, sizes[i] - 1);
+        end = clock();
+        float qsr = difftime(end, start) / CLOCKS_PER_SEC;
+
+        direct_and_reverse(mas, sizes[i]);
+        start = clock();
+        qsort(mas, sizes[i], sizeof(int), (int(*) (const void*, const void*)) comp);
+        end = clock();
+        float sqsr = difftime(end, start) / CLOCKS_PER_SEC;
+
+        printf("| %16d | %13f | %16f | %18f |\n", sizes[i], sqsr, shelr, qsr);
+
+    }
     return 0;
 }
